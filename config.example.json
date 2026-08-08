@@ -1,0 +1,25 @@
+{
+  "域名": "127.0.0.1",
+  "http端口": 8080,
+  "连接池大小": 8,
+  "连接超时": 10,
+  "超级管理员": [
+    "你的超级管理员QQ_ID"
+  ],
+  "框架": {
+    "QQBOT": [
+      {
+        "appid": 0,
+        "secret": "你的AppSecret",
+        "sandbox": false
+      }
+    ],
+    "napcat": [
+      {
+        "qq": 0,
+        "http_url": "http://127.0.0.1:3000",
+        "token": "你的NapCat Token"
+      }
+    ]
+  }
+}
