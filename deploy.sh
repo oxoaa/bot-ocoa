@@ -4,7 +4,7 @@ G='\033[0;32m' R='\033[0;31m' Y='\033[1;33m' N='\033[0m'
 ok()  { echo -e "${G}[✓]${N} $1"; }
 warn(){ echo -e "${Y}[!]${N} $1"; }
 err() { echo -e "${R}[✗]${N} $1"; exit 1; }
-run() { echo -e "${Y}[→]${N} $1"; eval "$1" || err "执行失败: $1"; }
+run() { echo -e "${Y}[→]${N} $1"; local out; out=$(eval "$1" 2>&1) || { echo "$out" | tail -10; err "执行失败: $1"; }; }
 
 BOT_DIR="/www/wwwroot/bot"
 BOT_NAME="bot"
@@ -47,9 +47,11 @@ if [ -z "$PHP_BIN" ]; then
         ubuntu|debian)
             run "apt-get update -qq"
             run "apt-get install -y software-properties-common"
-            run "add-apt-repository -y ppa:ondrej/php"
+            run "LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php"
             run "apt-get update -qq"
-            run "apt-get install -y php8.4-cli php8.4-mbstring php8.4-curl php8.4-xml php8.4-zip php8.4-bcmath php8.4-sockets php8.4-dev php8.4-pear"
+            # 先装核心包，再装扩展包，分开装方便定位问题
+            run "apt-get install -y php8.4-cli php8.4-mbstring php8.4-curl php8.4-xml php8.4-zip php8.4-bcmath"
+            apt-get install -y php8.4-sockets php8.4-dev php8.4-pear 2>/dev/null || warn "部分扩展包安装失败，不影响核心功能"
             PHP_BIN=$(command -v php8.4 || command -v php)
             ;;
         centos|rhel|rocky|almalinux|fedora)
