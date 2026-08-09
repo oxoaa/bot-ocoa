@@ -25,7 +25,7 @@ $PHP_BIN -m 2>/dev/null | grep -qi swoole || err "缺少 Swoole 扩展"
 ok "PHP $($PHP_BIN -r 'echo PHP_VERSION;') + Swoole ✓"
 
 # ---- 2. 修复 disable_functions ----
-INI=$($PHP_BIN --ini 2>/dev/null | grep "Loaded Configuration" | awk '{print $NF}')
+INI=$($PHP_BIN --ini 2>/dev/null | grep "Loaded Configuration" | awk '{print $NF}' | tr -d '"')
 if [ -n "$INI" ] && grep -q "proc_open" "$INI"; then
     cp "$INI" "${INI}.bak" 2>/dev/null
     sed -i 's/^disable_functions = .*/disable_functions = passthru,system,chroot,chgrp,chown,shell_exec,popen,ini_alter,ini_restore,dl,openlog,syslog,readlink,symlink,popepassthru,imap_open,apache_setenv/' "$INI"
