@@ -17,11 +17,15 @@ echo ""
 
 # ---- 1. 检测环境 ----
 PHP_BIN=""
-for p in /www/server/php/85/bin/php /usr/bin/php85 /usr/local/bin/php /usr/bin/php; do
-    [ -x "$p" ] && "$p" -r "exit(version_compare(PHP_VERSION,'8.4','>=')?0:1);" 2>/dev/null && PHP_BIN="$p" && break
+# 收集所有可能的 PHP 路径
+CANDIDATES=$(compgen -c php 2>/dev/null | grep -E '^php[0-9.]*$' | sort -u)
+CANDIDATES="$CANDIDATES /www/server/php/85/bin/php /www/server/php/84/bin/php /www/server/php/83/bin/php /www/server/php/82/bin/php /www/server/php/81/bin/php /usr/local/bin/php /usr/bin/php"
+for p in $CANDIDATES; do
+    P=$(command -v "$p" 2>/dev/null || echo "$p")
+    [ -x "$P" ] && "$P" -r "exit(version_compare(PHP_VERSION,'8.4','>=')?0:1);" 2>/dev/null && PHP_BIN="$P" && break
 done
-[ -z "$PHP_BIN" ] && err "需要 PHP 8.4+"
-$PHP_BIN -m 2>/dev/null | grep -qi swoole || err "缺少 Swoole 扩展"
+[ -z "$PHP_BIN" ] && err "需要 PHP 8.4+，当前未找到。请先安装 PHP 8.4+"
+$PHP_BIN -m 2>/dev/null | grep -qi swoole || err "缺少 Swoole 扩展，请执行: pecl install swoole"
 ok "PHP $($PHP_BIN -r 'echo PHP_VERSION;') + Swoole ✓"
 
 # ---- 2. 修复 disable_functions ----
